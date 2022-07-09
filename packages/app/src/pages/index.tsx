@@ -1,42 +1,77 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
+import { useEffect, useState } from "react";
 
-import { useExampleNFTContractRead } from "../contracts";
-import { Inventory } from "../Inventory";
-import { MintButton } from "../MintButton";
-import { useIsMounted } from "../useIsMounted";
+interface AskOrder {
+  id: string;
+  kind: string;
+  maker: string;
+  taker: string;
+  contract?: string;
+  tokenSetId: string;
+  price: number;
+  expiration: number;
+}
+
+const fetchAsks = async ({
+  contractAddress,
+  limit = 50,
+  sortBy = "createdAt",
+}: {
+  contractAddress: string;
+  limit?: number;
+  sortBy?: string;
+}): Promise<AskOrder[]> => {
+  const res = await fetch(
+    "https://api.reservoir.tools/orders/asks/v2?" +
+      new URLSearchParams({
+        contracts: contractAddress,
+        // sortBy: sortBy,
+        limit: `${limit}`,
+      })
+  );
+  const data = await res.json();
+  const { orders } = data;
+  console.log({ orders });
+
+  return orders as AskOrder[];
+};
 
 const HomePage: NextPage = () => {
-  const totalSupply = useExampleNFTContractRead({
-    functionName: "totalSupply",
-    watch: true,
-  });
-  const maxSupply = useExampleNFTContractRead({ functionName: "MAX_SUPPLY" });
+  const [contractAddress, setContractAddress] = useState(
+    "0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7"
+  );
 
-  const isMounted = useIsMounted();
+  const [asks, setAsks] = useState<AskOrder[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const rawAsks = await fetchAsks({ contractAddress });
+
+      setAsks(rawAsks);
+    })();
+  }, [contractAddress]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="self-end p-2">
-        <ConnectButton />
-      </div>
-      <div className="flex-grow flex flex-col gap-4 items-center justify-center p-8 pb-[50vh]">
-        <h1 className="text-4xl">Example NFT</h1>
+      <div className="flex-grow flex flex-col gap-4 p-8">
+        <div className="flex flex-row justify-between w-full">
+          <h1 className="text-3xl">Voucher!</h1>
+          <ConnectButton />
+        </div>
 
-        {/* Use isMounted to temporarily workaround hydration issues where
-        server-rendered markup doesn't match the client due to localStorage
-        caching in wagmi. See https://github.com/holic/web3-scaffold/pull/26 */}
-        <p>
-          {(isMounted ? totalSupply.data?.toNumber().toLocaleString() : null) ??
-            "??"}
-          /
-          {(isMounted ? maxSupply.data?.toNumber().toLocaleString() : null) ??
-            "??"}{" "}
-          minted
-        </p>
-
-        <MintButton />
-        <Inventory />
+        <div className="flex flex-wrap gap-4">
+          {asks.map((ask) => (
+            <div key={ask.id} className="rounded-md bg-gray-200 py-2 px-3">
+              <p>kind: {ask.kind}</p>
+              <p>contract: {ask.contract}</p>
+              <p>tokenId: {ask.tokenSetId.split(":")[2]}</p>
+              <p>expiration: {ask.expiration}</p>
+              <p>maker: {ask.maker}</p>
+              <p>price: {ask.price}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
