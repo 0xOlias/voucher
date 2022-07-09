@@ -1,12 +1,9 @@
-import { ExampleNFT__factory } from "@web3-scaffold/contracts/types";
+import type { ContractFactory } from "ethers";
 
-const contractInterface = ExampleNFT__factory.createInterface();
-
-// for (const [error, errorFragment] of Object.entries(contractInterface.errors)) {
-//   console.log(contractInterface.getSighash(errorFragment), errorFragment.name);
-// }
-
-export const extractContractError = (error: any): string => {
+export const extractContractError = (
+  contractInterface: ContractFactory["interface"],
+  error: any
+): string => {
   console.dir(error);
 
   // Attempt to extract Solidity error

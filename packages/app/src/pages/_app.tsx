@@ -9,7 +9,7 @@ import {
   Provider as GraphProvider,
 } from "urql";
 
-import { EthereumProviders } from "../EthereumProviders";
+import { EthereumProviders } from "../scaffold/EthereumProviders";
 
 export const graphClient = createGraphClient({
   url: "https://api.thegraph.com/subgraphs/name/holic/example-nft",

@@ -47,7 +47,10 @@ export const MintButton = () => {
         return { receipt };
       } catch (error) {
         console.error("Transaction error:", error);
-        const contractError = extractContractError(error);
+        const contractError = extractContractError(
+          exampleNFTContract.interface,
+          error
+        );
         throw new Error(`Transaction error: ${contractError}`);
       }
     },
