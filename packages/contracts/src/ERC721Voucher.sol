@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {SeaportInterface} from "seaport/contracts/interfaces/SeaportInterface.sol";
 
 struct Voucher {
     address sender;
@@ -15,9 +16,15 @@ struct Voucher {
 }
 
 contract ERC721Voucher is ReentrancyGuard {
+    // Config
+    SeaportInterface private immutable seaport =
+        SeaportInterface(0x00000000006c3852cbEf3e08E8dF289169EdE581);
+
+    // Storage
     uint256 private voucherId = 0;
     mapping(uint256 => Voucher) private vouchers;
 
+    // Events
     event VoucherCreated(
         uint256 indexed voucherId,
         address indexed sender,
@@ -32,6 +39,7 @@ contract ERC721Voucher is ReentrancyGuard {
         uint256 tokenId
     );
 
+    // Errors
     error VoucherNotOwned();
     error VoucherAlreadyRevoked();
     error VoucherAlreadyRedeemed();
