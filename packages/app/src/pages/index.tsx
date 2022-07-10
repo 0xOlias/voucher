@@ -2,21 +2,29 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 
-import type { AskOrder } from "../reservoir";
-import { fetchAsks, processRawAsks } from "../reservoir";
+import type { RawToken } from "../reservoirv2";
+// import { fetchAsks, processRawAsks } from "../reservoir";
+import { fetchTokens } from "../reservoirv2";
 
-const AskCard = ({ ask, timestamp }: { ask: AskOrder; timestamp: number }) => {
+const TokenCard = ({
+  token,
+  timestamp,
+}: {
+  token: RawToken;
+  timestamp: number;
+}) => {
   return (
     <div className="rounded-md bg-gray-200 py-2 px-3">
-      <p className="text-lg">{ask.metadata.data.tokenName}</p>
-      {/* <p>contract: {ask.contract}</p> */}
-      <p>tokenId: {ask.tokenSetId.split(":")[2]}</p>
-      <p>time until expiration: {ask.expiration - timestamp}</p>
+      <p className="text-lg">{token.token.name}</p>
+      <p>tokenId: {token.token.tokenId}</p>
+      <p>
+        time until expiration: {token.market.floorAsk.validUntil - timestamp}
+      </p>
       {/* <p>maker: {ask.maker}</p> */}
-      <p>price: {ask.price}</p>
+      <p>price: {token.market.floorAsk.price}</p>
       <img
-        alt={`${ask.metadata.data.tokenName} image`}
-        src={ask.metadata.data.image}
+        alt={`${token.token.name} image`}
+        src={token.token.image}
         width="300px"
         height="auto"
       />
@@ -37,17 +45,16 @@ const HomePage: NextPage = () => {
     "0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7" // Loot!
   );
 
-  const [asks, setAsks] = useState<AskOrder[]>([]);
+  const [tokens, setTokens] = useState<RawToken[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const rawAsks = await fetchAsks({ contractAddress });
-      const processedAsks = processRawAsks(rawAsks);
-      console.log({ processedAsks });
+      const tokens = await fetchTokens({ contractAddress });
+      console.log({ tokens });
 
-      setAsks(processedAsks);
+      setTokens(tokens);
       setLoading(false);
     })();
   }, [contractAddress]);
@@ -74,8 +81,12 @@ const HomePage: NextPage = () => {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            asks.map((ask) => (
-              <AskCard key={ask.id} ask={ask} timestamp={timestamp} />
+            tokens.map((token) => (
+              <TokenCard
+                key={token.token.tokenId}
+                token={token}
+                timestamp={timestamp}
+              />
             ))
           )}
         </div>
