@@ -13,16 +13,22 @@ interface RawToken {
       price: number;
       maker: string;
       validUntil: number;
+      source: {
+        icon: string;
+        id: string;
+        name: string;
+        url: string;
+      };
     };
   };
 }
 
 const apiKey = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY!;
+const testTaker = "0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B";
 
 const fetchTokens = async ({
   contractAddress,
   limit = 50,
-  sortBy = "floorAskPrice",
 }: {
   contractAddress: string;
   limit?: number;
@@ -31,9 +37,8 @@ const fetchTokens = async ({
   const res = await fetch(
     "https://api.reservoir.tools/tokens/details/v4?" +
       new URLSearchParams({
-        contract: contractAddress,
+        collection: contractAddress,
         limit: `${limit}`,
-        sortBy: sortBy,
       }),
     { headers: new Headers({ "x-api-key": apiKey }) }
   );
@@ -44,13 +49,49 @@ const fetchTokens = async ({
     continuation: string;
   };
 
-  const asks = tokens
-    .map((token) => token.market.floorAsk)
-    .filter((x) => !!x.id);
-  console.log({ asks });
-
   return tokens as RawToken[];
 };
 
-export { fetchTokens };
-export type { RawToken };
+interface Step {
+  action: string;
+  description: string;
+  kind: string;
+  status: string;
+  data: {
+    data: string;
+    from: string;
+    to: string;
+    value: string;
+  };
+}
+
+const fetchStepsForToken = async ({
+  contractAddress,
+  tokenId,
+}: {
+  contractAddress: string;
+  tokenId: number;
+}): Promise<Step[]> => {
+  const res = await fetch(
+    "https://api.reservoir.tools/execute/buy/v2?" +
+      new URLSearchParams({
+        token: `${contractAddress}:${tokenId}`,
+        taker: testTaker,
+        skipBalanceCheck: "true",
+      }),
+    { headers: new Headers({ "x-api-key": apiKey }) }
+  );
+  const response = await res.json();
+  console.log({ response });
+
+  if (response.error) throw new Error(response.error as string);
+  const { quote, steps } = response as {
+    quote: number;
+    steps: Step[];
+  };
+
+  return steps as Step[];
+};
+
+export { fetchStepsForToken, fetchTokens };
+export type { RawToken, Step };
