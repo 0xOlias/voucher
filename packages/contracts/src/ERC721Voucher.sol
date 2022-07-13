@@ -79,9 +79,10 @@ contract ERC721Voucher is ReentrancyGuard {
         if (vouchers[_voucherId].revoked) revert VoucherAlreadyRevoked();
         if (vouchers[_voucherId].redeemed) revert VoucherAlreadyRedeemed();
 
-        // Call seaport? kek
-        uint256 spent = 0;
+        // BasicOrderParameters calldata params = BasicOrderParameters();
+        // seaport.fulfillBasicOrder(params);
 
+        uint256 spent = 0;
         emit VoucherRedeemed(_voucherId, spent, tokenId);
         vouchers[_voucherId].redeemed = true;
     }
