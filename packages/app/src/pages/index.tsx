@@ -25,8 +25,6 @@ const TokenCard = ({
     setLoading(false);
   };
 
-  console.log({ token });
-
   return (
     <div className="flex flex-col rounded-md bg-gray-200 py-2 px-3 gap-2 w-full sm:w-[calc(50%-9px)] md:w-[calc(33.33%-11px)] lg:w-[calc(25%-12px)]">
       <p className="overflow-x-auto whitespace-nowrap w-full">

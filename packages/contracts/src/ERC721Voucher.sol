@@ -4,7 +4,6 @@ pragma solidity ^0.8.13;
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {SeaportInterface} from "seaport/contracts/interfaces/SeaportInterface.sol";
 
 struct Voucher {
     address sender;
@@ -16,9 +15,9 @@ struct Voucher {
 }
 
 contract ERC721Voucher is ReentrancyGuard {
-    // Config
-    SeaportInterface private immutable seaport =
-        SeaportInterface(0x00000000006c3852cbEf3e08E8dF289169EdE581);
+    // // Config
+    address private immutable reservoir =
+        0x8005488FF4f8982D2D8c1D602e6d747b1428dd41;
 
     // Storage
     uint256 private voucherId = 0;
@@ -44,6 +43,9 @@ contract ERC721Voucher is ReentrancyGuard {
     error VoucherAlreadyRevoked();
     error VoucherAlreadyRedeemed();
     error PaymentFailed();
+    error PurchaseFailed();
+    error TokenAlreadyOwned();
+    error TokenNotTransferred();
 
     function createVoucher(address recipient, address token) external payable {
         vouchers[voucherId] = Voucher(
@@ -73,17 +75,30 @@ contract ERC721Voucher is ReentrancyGuard {
         vouchers[_voucherId].revoked = true;
     }
 
-    function redeemVoucher(uint256 _voucherId, uint256 tokenId) external {
-        if (vouchers[_voucherId].recipient != msg.sender)
-            revert VoucherNotOwned();
-        if (vouchers[_voucherId].revoked) revert VoucherAlreadyRevoked();
-        if (vouchers[_voucherId].redeemed) revert VoucherAlreadyRedeemed();
+    function redeemVoucher(
+        uint256 _voucherId,
+        uint256 tokenId,
+        uint256 fillPrice,
+        address reservoirRouterAddress,
+        bytes calldata reservoirRouterCalldata
+    ) external {
+        Voucher memory voucher = vouchers[_voucherId];
+        if (voucher.recipient != msg.sender) revert VoucherNotOwned();
+        if (voucher.revoked) revert VoucherAlreadyRevoked();
+        if (voucher.redeemed) revert VoucherAlreadyRedeemed();
 
-        // BasicOrderParameters calldata params = BasicOrderParameters();
-        // seaport.fulfillBasicOrder(params);
+        if (IERC721(voucher.token).ownerOf(tokenId) == msg.sender)
+            revert TokenAlreadyOwned();
 
-        uint256 spent = 0;
-        emit VoucherRedeemed(_voucherId, spent, tokenId);
+        (bool success, ) = reservoirRouterAddress.call{value: fillPrice}(
+            reservoirRouterCalldata
+        );
+        if (!success) revert PurchaseFailed();
+
+        if (IERC721(voucher.token).ownerOf(tokenId) != msg.sender)
+            revert TokenNotTransferred();
+
+        emit VoucherRedeemed(_voucherId, fillPrice, tokenId);
         vouchers[_voucherId].redeemed = true;
     }
 }

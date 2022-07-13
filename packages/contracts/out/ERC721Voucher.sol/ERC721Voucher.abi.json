@@ -6,6 +6,21 @@
   },
   {
     "inputs": [],
+    "name": "PurchaseFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenAlreadyOwned",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenNotTransferred",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "VoucherAlreadyRedeemed",
     "type": "error"
   },
@@ -123,6 +138,21 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fillPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "reservoirRouterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "reservoirRouterCalldata",
+        "type": "bytes"
       }
     ],
     "name": "redeemVoucher",
