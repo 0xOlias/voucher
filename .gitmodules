@@ -7,3 +7,6 @@
 [submodule "packages/contracts/lib/seaport"]
 	path = packages/contracts/lib/seaport
 	url = https://github.com/ProjectOpenSea/seaport
+[submodule "packages/contracts/lib/core"]
+	path = packages/contracts/lib/core
+	url = https://github.com/reservoirprotocol/core
