@@ -31,6 +31,11 @@
   },
   {
     "inputs": [],
+    "name": "VoucherLimitExceeded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "VoucherNotOwned",
     "type": "error"
   },

@@ -42,6 +42,7 @@ contract ERC721Voucher is ReentrancyGuard {
     error VoucherNotOwned();
     error VoucherAlreadyRevoked();
     error VoucherAlreadyRedeemed();
+    error VoucherLimitExceeded();
     error PaymentFailed();
     error PurchaseFailed();
     error TokenAlreadyOwned();
@@ -80,23 +81,24 @@ contract ERC721Voucher is ReentrancyGuard {
         uint256 tokenId,
         uint256 fillPrice,
         address reservoirRouterAddress,
-        bytes calldata reservoirRouterCalldata
+        bytes memory reservoirRouterCalldata
     ) external {
         Voucher memory voucher = vouchers[_voucherId];
         if (voucher.recipient != msg.sender) revert VoucherNotOwned();
         if (voucher.revoked) revert VoucherAlreadyRevoked();
         if (voucher.redeemed) revert VoucherAlreadyRedeemed();
+        if (fillPrice > voucher.limit) revert VoucherLimitExceeded();
 
-        if (IERC721(voucher.token).ownerOf(tokenId) == msg.sender)
-            revert TokenAlreadyOwned();
+        // if (IERC721(voucher.token).ownerOf(tokenId) == msg.sender)
+        //     revert TokenAlreadyOwned();
 
         (bool success, ) = reservoirRouterAddress.call{value: fillPrice}(
             reservoirRouterCalldata
         );
         if (!success) revert PurchaseFailed();
 
-        if (IERC721(voucher.token).ownerOf(tokenId) != msg.sender)
-            revert TokenNotTransferred();
+        // if (IERC721(voucher.token).ownerOf(tokenId) != msg.sender)
+        //     revert TokenNotTransferred();
 
         emit VoucherRedeemed(_voucherId, fillPrice, tokenId);
         vouchers[_voucherId].redeemed = true;

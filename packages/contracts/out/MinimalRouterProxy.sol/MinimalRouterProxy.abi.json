@@ -1,0 +1,50 @@
+[
+  {
+    "inputs": [],
+    "name": "PurchaseFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenAlreadyOwned",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenNotTransferred",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fillPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "reservoirRouter",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "reservoirRouterData",
+        "type": "bytes"
+      }
+    ],
+    "name": "fillOrderProxy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
