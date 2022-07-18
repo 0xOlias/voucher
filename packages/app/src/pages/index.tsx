@@ -2,8 +2,8 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 
-import type { RawToken, Step } from "../reservoirv2";
-import { fetchStepsForToken, fetchTokens } from "../reservoirv2";
+import type { RawToken, Step } from "../reservoir";
+import { fetchStepsForToken, fetchTokens } from "../reservoir";
 
 const TokenCard = ({
   token,
@@ -26,7 +26,7 @@ const TokenCard = ({
   };
 
   return (
-    <div className="flex flex-col rounded-md bg-gray-200 py-2 px-3 gap-2 w-full sm:w-[calc(50%-9px)] md:w-[calc(33.33%-11px)] lg:w-[calc(25%-12px)]">
+    <div className="flex flex-col rounded-md bg-gray-200 py-2 px-3 gap-2">
       <p className="overflow-x-auto whitespace-nowrap w-full">
         {token.token.name}
       </p>
@@ -80,8 +80,17 @@ const TokenCard = ({
       </button>
       {steps.map((step, idx) => {
         return (
-          <div key={idx} className="rounded-md bg-gray-300 py-2 px-3">
+          <div
+            key={idx}
+            className="rounded-md bg-gray-300 py-2 px-3 overflow-auto"
+          >
             <p>{step.action}</p>
+            <p>
+              {JSON.stringify(step.data)
+                .replaceAll(",", ",\n")
+                .replaceAll("{", "{\n")
+                .replaceAll("}", "\n}")}
+            </p>
           </div>
         );
       })}
@@ -133,7 +142,7 @@ const HomePage: NextPage = () => {
           />
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {loading ? (
             <p>Loading...</p>
           ) : (

@@ -24,7 +24,7 @@ interface RawToken {
 }
 
 const apiKey = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY!;
-const testTaker = "0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B";
+const testTaker = "0x0000000000000000000000000000000000000002";
 
 const fetchTokens = async ({
   contractAddress,
